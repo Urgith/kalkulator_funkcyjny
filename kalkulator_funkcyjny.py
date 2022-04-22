@@ -5,6 +5,8 @@ Program ten jest graficznym interfejsem do rysowania wykresów. Posiada on:
   -złożony kalkulator
   -pomoc, opisującą jak należy korzystać z programu
 '''
+import matplotlib.pyplot as plt
+''' moduł pozwalający nam na rysowanie wykresów funkcji'''
 from functools import partial
 ''' funkcja partial z modułu functools ułatwia nam korzystanie z komendy dla przycisku'''
 from tkinter.ttk import *
@@ -13,8 +15,6 @@ from tkinter import *
 ''' moduł odpowiedzialny za tworzenie GUI będącego najważniejszą częścią tego programu'''
 from numpy import *
 ''' moduł odpowiedzialny za obliczenia macierzowe oraz funkcje i zmienne matematyczne'''
-import pylab
-''' moduł pozwalający nam na rysowanie wykresów funkcji'''
 import os
 ''' moduł pozwalający nam operować na plikach i ścieżkach'''
 
@@ -158,12 +158,12 @@ class Wykres():
         global wykres
 
         self.sprawdzanie = True
-        self.fig, self.ax = pylab.subplots()
+        self.fig, self.ax = plt.subplots()
         wykres = self.fig
 
-        pylab.title(entry_get(interfejs.nazwa_wykres))
-        pylab.xlabel(entry_get(interfejs.nazwaX))
-        pylab.ylabel(entry_get(interfejs.nazwaY))
+        plt.title(entry_get(interfejs.nazwa_wykres))
+        plt.xlabel(entry_get(interfejs.nazwaX))
+        plt.ylabel(entry_get(interfejs.nazwaY))
 
         try:
             a = float(entry_get(interfejs.zakresXdolny))
@@ -195,6 +195,7 @@ class Wykres():
 
         try:
             self.e = int(entry_get(interfejs.dokladnosc))
+
             if self.e > 10000:
                 self.e = 10000
                 interfejs.bledy.delete(0, END)
@@ -203,19 +204,19 @@ class Wykres():
             if self.e < 2:
                 self.e = 2
                 interfejs.bledy.delete(0, END)
-                interfejs.bledy.insert(0, 'Minimalna dokładność to 1.')
+                interfejs.bledy.insert(0, 'Minimalna dokładność to 2.')
 
         except:
             self.e = 1000
             interfejs.bledy.insert(0, 'Nie wprowadzono dokładności rysunku. ')
 
         if a < b and c < d:
-            pylab.axis([a, b, c, d])
-            x = pylab.linspace(a, b, self.e)
+            plt.axis([a, b, c, d])
+            x = linspace(a, b, self.e)
 
         else:
-            pylab.axis([-10, 20, -10, 20])
-            x = pylab.linspace(-10, 20, self.e)
+            plt.axis([-10, 20, -10, 20])
+            x = linspace(-10, 20, self.e)
 
         self.lista_kolorow = Wykres.wzor(interfejs)[1]
         if not self.lista_kolorow[0]:
@@ -224,14 +225,14 @@ class Wykres():
         if Wykres.wzor(interfejs)[0][0]:
             if len(Wykres.wzor(interfejs)[0]) > len(self.lista_kolorow):
                 for i in range(len(Wykres.wzor(interfejs)[0]) - len(self.lista_kolorow)):
-                    self.lista_kolorow.append(self.lista_kolorow[i%len(Wykres.wzor(interfejs)[1])])
+                    self.lista_kolorow.append(self.lista_kolorow[i % len(Wykres.wzor(interfejs)[1])])
 
             try:
                 for i, wykresik in enumerate(Wykres.wzor(interfejs)[0]):
                     try:
-                        pylab.plot(x, eval(wykresik), color=self.lista_kolorow[i], label=wykresik)
+                        plt.plot(x, eval(wykresik), color=self.lista_kolorow[i], label=wykresik)
                     except:
-                        pylab.plot(x, eval(wykresik)*ones(shape=[1000,]), color=self.lista_kolorow[i], label=wykresik)
+                        plt.plot(x, eval(wykresik) * ones(shape=[1000,]), color=self.lista_kolorow[i], label=wykresik)
 
             except:
                 interfejs.bledy.delete(0, END)
@@ -247,16 +248,18 @@ class Wykres():
             self.ax.legend()
 
         if interfejs.siatka[1].get():
-            pylab.grid(True)
-            pylab.axhline(0, color=(0,0,0), linewidth=0.7)
-            pylab.axvline(0, color=(0,0,0), linewidth=0.7)
+            plt.grid(True)
+            plt.axhline(0, color=(0, 0, 0), linewidth=0.7)
+            plt.axvline(0, color=(0, 0, 0), linewidth=0.7)
 
         Wykres.zapis_canvas(interfejs)
         try:
             if self.sprawdzanie:
                 photo = PhotoImage(file='ostatni_wykres.png')
                 interfejs.canvas.create_image(0, 0, image=photo, anchor=NW)
-        except: pass
+
+        except:
+            pass
 
         interfejs.root.mainloop()
 
@@ -326,7 +329,7 @@ class Kalkulator(Interfejs):
         self.wynik = self.wejscie(5, 380, 300, 35)
         self.wynik_obliczen = self.wejscie(45, 420, 265, 35)
 
-        phi = (1 + 5**0.5)/2
+        phi = (1 + 5**0.5) / 2
 
         if interfejs.zmiana.get() == 'Narzędzie':
             self.opcja(interfejs.wzor, interfejs, 'Narzędzie')
@@ -407,7 +410,7 @@ class Pomoc(Interfejs):
     def __init__(self):
         ''' funkcja tworząca podpowiedzi dla użytkownika w postaci napisów (Label z tkinter)'''
         self.root = Tk()
-        self.polozenie('Pomoc', '642x255+50+107','yellow')
+        self.polozenie('Pomoc', '642x255+50+107', 'yellow')
 
         self.napis(5, 5, 632, 20, 'W polu "Wzór funkcji" należy wpisać funkcje o zmiennej x oddzielone ";".')
         self.napis(5, 30, 632, 20, 'Wzór obsługuje wiele funkcji np. trygonometryczne, we wzorze korzystamy z nawiasów "(" i ")".')
